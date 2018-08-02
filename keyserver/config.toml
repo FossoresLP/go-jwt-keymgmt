@@ -1,0 +1,3 @@
+certFile = "cert.cer"
+keyFile = "key.cer"
+validationKey = "tests"
