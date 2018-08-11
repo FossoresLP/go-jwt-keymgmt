@@ -3,6 +3,9 @@ Public key management for EdDSA JSON Web Tokens
 
 This package provides a full key management solution for EdDSA keys.
 
+Be careful when using this package. It is currently WIP and the API might change.
+---------------------------------------------------------------------------------
+
 It is seperated into 4 components:
 
 1. An implementation of JSON Web keys and sets thereof used by all other components.
