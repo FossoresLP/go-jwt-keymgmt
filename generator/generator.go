@@ -22,31 +22,30 @@ type Signer struct {
 
 // NewKeySet takes a keyserver URL and creates a Signer with a new set of public and private keys.
 // It also submits the public key to the keyserver.
-func NewKeySet(keyServerURL string) (sig *Signer, err error) {
-	sig.keyServerURL = keyServerURL
-	sig.publicKey, sig.privateKey, err = ed25519.GenerateKey(nil)
+func NewKeySet(keyServerURL string) (*Signer, error) {
+	publicKey, privateKey, err := ed25519.GenerateKey(nil)
 	if err != nil {
-		return
+		return nil, err
 	}
-	pubReader := bytes.NewReader(sig.publicKey)
-	resp, err := http.Post(sig.keyServerURL, "application/octet-stream", pubReader)
+	pubReader := bytes.NewReader(publicKey)
+	resp, err := http.Post(keyServerURL, "application/octet-stream", pubReader)
 	if err != nil {
-		return
+		return nil, err
 	}
 	rawBody := make([]byte, 36)
 	l, err := resp.Body.Read(rawBody)
 	if err != nil {
-		return
+		return nil, err
 	}
 	if l != 36 {
 		return nil, errors.New("key ID has wrong length")
 	}
-	sig.keyID, err = uuid.Parse(string(rawBody))
+	keyID, err := uuid.Parse(string(rawBody))
 	if err != nil {
-		return
+		return nil, err
 	}
-	jwt.Setup(sig.privateKey)
-	return nil, nil
+	jwt.Setup(privateKey)
+	return &Signer{privateKey, publicKey, keyID, keyServerURL}, nil
 }
 
 // NewJWT takes the desired content as an argument and generates a JWT with key ID and keyserver URL set by this package.
